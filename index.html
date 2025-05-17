@@ -2,31 +2,185 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sports Day Simulation</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      padding: 30px;
+      color: #333;
     }
-    #log {
-      white-space: pre-wrap;
-      background: #f9f9f9;
-      padding: 15px;
-      border: 1px solid #ccc;
-      margin-top: 20px;
+    h1 {
+      text-align: center;
+      color: #2a4365;
+      margin-bottom: 20px;
     }
     button {
-      padding: 10px 15px;
-      font-size: 16px;
+      display: block;
+      margin: 0 auto 20px auto;
+      background: #3182ce;
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #2b6cb0;
+    }
+    #log {
+      background: white;
+      max-width: 700px;
+      margin: 0 auto;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.4;
+      color: #1a202c;
+    }
+    .event-header {
+      color: #2c5282;
+      font-weight: 700;
+      margin-top: 20px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
   <h1>🏆 Sports Day Simulation</h1>
-  <button onclick="OpeningCeremony(Race100M)">Start Events</button>
+  <button id="startBtn">Start Events</button>
   <div id="log"></div>
 
-  <script src="script.js"></script>
+  <script>
+    let scores = {
+      red: 0,
+      blue: 0,
+      green: 0,
+      yellow: 0,
+    };
+
+    const logBox = document.getElementById("log");
+    const startBtn = document.getElementById("startBtn");
+
+    function log(text, isHeader = false) {
+      if (isHeader) {
+        logBox.innerHTML += `\n<span class="event-header">${text}</span>\n`;
+      } else {
+        logBox.innerHTML += text + "\n";
+      }
+      logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to bottom
+      console.log(text);
+    }
+
+    // Opening Ceremony
+    function OpeningCeremony(callback) {
+      log("🎉 Let the games begin!", true);
+      setTimeout(() => {
+        log("Initial Scores: " + JSON.stringify(scores));
+        callback();
+      }, 1000);
+    }
+
+    // Race 100M
+    function Race100M(callback) {
+      log("\nScores before 100M Race: " + JSON.stringify(scores));
+      log("🏃‍♂️ Starting 100M Race...", true);
+
+      setTimeout(() => {
+        const times = {
+          red: Math.floor(Math.random() * 6) + 10,
+          blue: Math.floor(Math.random() * 6) + 10,
+          green: Math.floor(Math.random() * 6) + 10,
+          yellow: Math.floor(Math.random() * 6) + 10,
+        };
+
+        log("Race Times: " + JSON.stringify(times));
+
+        const sorted = Object.entries(times).sort((a, b) => a[1] - b[1]);
+        scores[sorted[0][0]] += 50;
+        scores[sorted[1][0]] += 25;
+
+        log("Scores after 100M Race: " + JSON.stringify(scores));
+        callback();
+      }, 3000);
+    }
+
+    // Long Jump
+    function LongJump(callback) {
+      log("\nScores before Long Jump: " + JSON.stringify(scores));
+      log("🏃‍♀️ Starting Long Jump...", true);
+
+      setTimeout(() => {
+        const colors = ["red", "blue", "green", "yellow"];
+        const winner = colors[Math.floor(Math.random() * colors.length)];
+
+        scores[winner] += 150;
+        log(`${winner.toUpperCase()} won the Long Jump!`);
+        log("Scores after Long Jump: " + JSON.stringify(scores));
+        callback();
+      }, 2000);
+    }
+
+    // High Jump
+    function HighJump(callback) {
+      log("\nScores before High Jump: " + JSON.stringify(scores));
+      log("🦘 Starting High Jump...", true);
+
+      setTimeout(() => {
+        const userColor = prompt("Which color secured the highest jump? (red/blue/green/yellow)");
+
+        if (userColor && scores.hasOwnProperty(userColor.toLowerCase())) {
+          scores[userColor.toLowerCase()] += 100;
+          log(`${userColor.toUpperCase()} won the High Jump!`);
+        } else {
+          log("Event was cancelled or invalid input.");
+        }
+
+        log("Scores after High Jump: " + JSON.stringify(scores));
+        callback();
+      }, 1000);
+    }
+
+    // Award Ceremony
+    function AwardCeremony() {
+      log("\n🎖️ Award Ceremony", true);
+
+      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      log(`🥇 First Place: ${sorted[0][0].toUpperCase()} with ${sorted[0][1]} points`);
+      log(`🥈 Second Place: ${sorted[1][0].toUpperCase()} with ${sorted[1][1]} points`);
+      log(`🥉 Third Place: ${sorted[2][0].toUpperCase()} with ${sorted[2][1]} points`);
+      log("🏁 Final Scores: " + JSON.stringify(scores));
+
+      startBtn.disabled = false;
+      startBtn.innerText = "Restart Events";
+    }
+
+    // Button click starts the event chain
+    startBtn.addEventListener("click", () => {
+      // Reset scores & log
+      scores = { red: 0, blue: 0, green: 0, yellow: 0 };
+      logBox.innerHTML = "";
+      startBtn.disabled = true;
+      startBtn.innerText = "Events Running...";
+
+      OpeningCeremony(() => {
+        Race100M(() => {
+          LongJump(() => {
+            HighJump(() => {
+              AwardCeremony();
+            });
+          });
+        });
+      });
+    });
+  </script>
 </body>
 </html>
